@@ -40,6 +40,9 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
     database_url: str = "sqlite+aiosqlite:///./travelpanda.db"
+    cloudinary_cloud_name: str | None = None
+    cloudinary_api_key: str | None = None
+    cloudinary_api_secret: str | None = None
 
     @property
     def async_database_url(self) -> str:
