@@ -40,6 +40,7 @@ class Hotel(Base):
     )
 
     packages: Mapped[list["PackageHotel"]] = relationship(back_populates="hotel")
+    comments: Mapped[list["Comment"]] = relationship(back_populates="hotel")
 
 
 class PackageHotel(Base):

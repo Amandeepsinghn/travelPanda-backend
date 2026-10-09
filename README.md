@@ -44,3 +44,11 @@ uv run alembic downgrade -1
 - `POST/PATCH /api/v1/destinations`
 - `POST/PATCH /api/v1/packages`
 - `POST/PATCH /api/v1/hotels`
+
+## Comments
+
+- `GET /api/v1/packages/{slug}/comments`
+- `POST /api/v1/packages/{slug}/comments` — bearer, `{ "body", "rating?" }`
+- `GET /api/v1/hotels/{slug}/comments`
+- `POST /api/v1/hotels/{slug}/comments` — bearer, `{ "body", "rating?" }`
+- `DELETE /api/v1/comments/{id}` — owner or admin

@@ -58,6 +58,7 @@ class Package(Base):
     )
     media: Mapped[list["PackageMedia"]] = relationship(back_populates="package")
     bookings: Mapped[list["Booking"]] = relationship(back_populates="package")
+    comments: Mapped[list["Comment"]] = relationship(back_populates="package")
 
 
 class PackageDay(Base):

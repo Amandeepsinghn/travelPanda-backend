@@ -28,3 +28,4 @@ class User(Base):
     )
 
     bookings: Mapped[list["Booking"]] = relationship(back_populates="user")
+    comments: Mapped[list["Comment"]] = relationship(back_populates="user")

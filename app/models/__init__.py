@@ -1,4 +1,5 @@
 from app.models.booking import Booking, BookingStatus
+from app.models.comment import Comment
 from app.models.destination import Destination
 from app.models.hotel import Hotel, PackageHotel
 from app.models.package import Package, PackageDay, PackageMedia, PackageStop
@@ -15,4 +16,5 @@ __all__ = [
     "PackageMedia",
     "Booking",
     "BookingStatus",
+    "Comment",
 ]
