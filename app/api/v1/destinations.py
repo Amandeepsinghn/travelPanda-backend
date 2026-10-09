@@ -7,6 +7,7 @@ from app.models import User
 from app.schemas.destination import DestinationCreate, DestinationOut, DestinationUpdate
 from app.services.destination import (
     create_destination,
+    delete_destination,
     get_destination_by_slug,
     list_destinations,
     update_destination,
@@ -53,5 +54,17 @@ async def patch_destination(
 ) -> DestinationOut:
     try:
         return await update_destination(db, destination_id, payload)
+    except ServiceError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=exc.message) from exc
+
+
+@router.delete("/{destination_id}", status_code=204)
+async def remove_destination(
+    destination_id: int,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_current_admin),
+) -> None:
+    try:
+        await delete_destination(db, destination_id)
     except ServiceError as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.message) from exc

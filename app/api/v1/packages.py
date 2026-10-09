@@ -8,6 +8,7 @@ from app.schemas.package import PackageCreate, PackageDetailOut, PackageOut, Pac
 from app.services.errors import ServiceError
 from app.services.package import (
     create_package,
+    delete_package,
     get_package_by_slug,
     list_packages,
     update_package,
@@ -53,5 +54,17 @@ async def patch_package(
 ) -> PackageDetailOut:
     try:
         return await update_package(db, package_id, payload)
+    except ServiceError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=exc.message) from exc
+
+
+@router.delete("/{package_id}", status_code=204)
+async def remove_package(
+    package_id: int,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_current_admin),
+) -> None:
+    try:
+        await delete_package(db, package_id)
     except ServiceError as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.message) from exc

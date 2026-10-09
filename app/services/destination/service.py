@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.utils import slugify
-from app.models import Destination
+from app.models import Destination, Package
 from app.schemas.destination import DestinationCreate, DestinationOut, DestinationUpdate
 from app.services.errors import ServiceError
 
@@ -83,3 +83,21 @@ async def update_destination(
     await db.commit()
     await db.refresh(destination)
     return DestinationOut.model_validate(destination)
+
+
+async def delete_destination(db: AsyncSession, destination_id: int) -> None:
+    result = await db.execute(select(Destination).where(Destination.id == destination_id))
+    destination = result.scalar_one_or_none()
+    if destination is None or not destination.is_active:
+        raise ServiceError("destination not found", status_code=404)
+
+    destination.is_active = False
+    packages = await db.execute(
+        select(Package).where(
+            Package.destination_id == destination_id,
+            Package.is_active.is_(True),
+        )
+    )
+    for package in packages.scalars().all():
+        package.is_active = False
+    await db.commit()

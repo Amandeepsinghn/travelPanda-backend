@@ -6,7 +6,13 @@ from app.db.database import get_db
 from app.models import User
 from app.schemas.hotel import HotelCreate, HotelOut, HotelUpdate
 from app.services.errors import ServiceError
-from app.services.hotel import create_hotel, get_hotel_by_slug, list_hotels, update_hotel
+from app.services.hotel import (
+    create_hotel,
+    delete_hotel,
+    get_hotel_by_slug,
+    list_hotels,
+    update_hotel,
+)
 
 router = APIRouter(prefix="/hotels", tags=["hotels"])
 
@@ -48,5 +54,17 @@ async def patch_hotel(
 ) -> HotelOut:
     try:
         return await update_hotel(db, hotel_id, payload)
+    except ServiceError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=exc.message) from exc
+
+
+@router.delete("/{hotel_id}", status_code=204)
+async def remove_hotel(
+    hotel_id: int,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_current_admin),
+) -> None:
+    try:
+        await delete_hotel(db, hotel_id)
     except ServiceError as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.message) from exc

@@ -41,9 +41,17 @@ uv run alembic downgrade -1
 
 ## Catalog admin (`role=admin` bearer)
 
-- `POST/PATCH /api/v1/destinations`
-- `POST/PATCH /api/v1/packages`
-- `POST/PATCH /api/v1/hotels`
+- `POST/PATCH/DELETE /api/v1/destinations/{id}`
+- `POST/PATCH/DELETE /api/v1/packages/{id}`
+- `POST/PATCH/DELETE /api/v1/hotels/{id}`
+
+Delete is soft (`is_active=false`). Deleting a destination also deactivates its packages.
+
+## Uploads (admin)
+
+- `POST /api/v1/uploads/image` — multipart form: `file` + optional `folder`
+  (`destinations` | `packages` | `hotels` | `general`)
+- response: `{ "url", "public_id", ... }` — put `url` into `cover_image_url` / media
 
 ## Comments
 

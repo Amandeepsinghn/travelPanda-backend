@@ -43,7 +43,7 @@ async def main() -> None:
             fetch_bytes(src),
             folder="travelpanda/packages",
             public_id=public_id,
-        )
+        )["url"]
         gallery_urls.append((url, alt))
 
     async with AsyncSessionLocal() as db:

@@ -41,13 +41,15 @@ async def main() -> None:
     hotel_url, hotel_folder, hotel_id = SOURCES["hotel:sea-view-resort"]
 
     uploaded = {
-        "goa": upload_image(fetch_bytes(dest_url), folder=dest_folder, public_id=dest_id),
+        "goa": upload_image(
+            fetch_bytes(dest_url), folder=dest_folder, public_id=dest_id
+        )["url"],
         "goa-4n5d-escape": upload_image(
             fetch_bytes(pkg_url), folder=pkg_folder, public_id=pkg_id
-        ),
+        )["url"],
         "sea-view-resort": upload_image(
             fetch_bytes(hotel_url), folder=hotel_folder, public_id=hotel_id
-        ),
+        )["url"],
     }
 
     async with AsyncSessionLocal() as db:

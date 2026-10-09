@@ -82,3 +82,13 @@ async def update_hotel(
     await db.commit()
     await db.refresh(hotel)
     return HotelOut.model_validate(hotel)
+
+
+async def delete_hotel(db: AsyncSession, hotel_id: int) -> None:
+    result = await db.execute(select(Hotel).where(Hotel.id == hotel_id))
+    hotel = result.scalar_one_or_none()
+    if hotel is None or not hotel.is_active:
+        raise ServiceError("hotel not found", status_code=404)
+
+    hotel.is_active = False
+    await db.commit()

@@ -169,3 +169,13 @@ async def update_package(
 
     await db.commit()
     return await get_package_by_slug(db, package.slug, active_only=False)
+
+
+async def delete_package(db: AsyncSession, package_id: int) -> None:
+    result = await db.execute(select(Package).where(Package.id == package_id))
+    package = result.scalar_one_or_none()
+    if package is None or not package.is_active:
+        raise ServiceError("package not found", status_code=404)
+
+    package.is_active = False
+    await db.commit()
