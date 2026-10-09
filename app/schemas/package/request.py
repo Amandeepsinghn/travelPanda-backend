@@ -60,3 +60,7 @@ class PackageUpdate(BaseModel):
     currency: str | None = Field(default=None, max_length=8)
     cover_image_url: str | None = Field(default=None, max_length=512)
     is_active: bool | None = None
+    # If present (including []), replaces existing nested rows entirely.
+    days: list[PackageDayCreate] | None = None
+    hotels: list[PackageHotelLinkCreate] | None = None
+    media: list[PackageMediaCreate] | None = None

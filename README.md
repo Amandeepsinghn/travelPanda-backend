@@ -47,6 +47,10 @@ uv run alembic downgrade -1
 
 Delete is soft (`is_active=false`). Deleting a destination also deactivates its packages.
 
+Package `PATCH` can also replace nested `days`, `hotels`, and `media` when those keys are sent
+(including `[]` to clear). Omit a key to leave that part unchanged. Upload images first via
+`POST /uploads/image`, then put the returned urls into `cover_image_url` / `media`.
+
 ## Uploads (admin)
 
 - `POST /api/v1/uploads/image` — multipart form: `file` + optional `folder`
