@@ -31,6 +31,11 @@ class PackageMediaCreate(BaseModel):
     sort_order: int = 0
 
 
+class PackageTermCreate(BaseModel):
+    text: str = Field(min_length=1)
+    sort_order: int = 0
+
+
 class PackageCreate(BaseModel):
     destination_id: int
     title: str = Field(min_length=1, max_length=255)
@@ -46,6 +51,8 @@ class PackageCreate(BaseModel):
     days: list[PackageDayCreate] = Field(default_factory=list)
     hotels: list[PackageHotelLinkCreate] = Field(default_factory=list)
     media: list[PackageMediaCreate] = Field(default_factory=list)
+    inclusions: list[PackageTermCreate] = Field(default_factory=list)
+    exclusions: list[PackageTermCreate] = Field(default_factory=list)
 
 
 class PackageUpdate(BaseModel):
@@ -64,3 +71,5 @@ class PackageUpdate(BaseModel):
     days: list[PackageDayCreate] | None = None
     hotels: list[PackageHotelLinkCreate] | None = None
     media: list[PackageMediaCreate] | None = None
+    inclusions: list[PackageTermCreate] | None = None
+    exclusions: list[PackageTermCreate] | None = None

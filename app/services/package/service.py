@@ -11,12 +11,14 @@ from app.models import (
     PackageHotel,
     PackageMedia,
     PackageStop,
+    PackageTerm,
 )
 from app.schemas.package import PackageCreate, PackageDetailOut, PackageOut, PackageUpdate
 from app.schemas.package.request import (
     PackageDayCreate,
     PackageHotelLinkCreate,
     PackageMediaCreate,
+    PackageTermCreate,
 )
 from app.services.errors import ServiceError
 
@@ -27,6 +29,7 @@ def _package_load_options():
         selectinload(Package.days).selectinload(PackageDay.stops),
         selectinload(Package.hotels).selectinload(PackageHotel.hotel),
         selectinload(Package.media),
+        selectinload(Package.terms),
     )
 
 
@@ -133,6 +136,32 @@ async def _replace_media(
     await _add_media(db, package_id, media)
 
 
+async def _replace_terms(
+    db: AsyncSession,
+    package_id: int,
+    kind: str,
+    terms: list[PackageTermCreate],
+) -> None:
+    await db.execute(
+        delete(PackageTerm).where(
+            PackageTerm.package_id == package_id,
+            PackageTerm.kind == kind,
+        )
+    )
+    for index, term in enumerate(terms):
+        text = term.text.strip()
+        if not text:
+            continue
+        db.add(
+            PackageTerm(
+                package_id=package_id,
+                kind=kind,
+                text=text,
+                sort_order=index,
+            )
+        )
+
+
 async def list_packages(
     db: AsyncSession,
     *,
@@ -198,6 +227,8 @@ async def create_package(db: AsyncSession, payload: PackageCreate) -> PackageDet
     await _add_days(db, package.id, payload.days)
     await _add_hotels(db, package.id, payload.hotels)
     await _add_media(db, package.id, payload.media)
+    await _replace_terms(db, package.id, "inclusion", payload.inclusions)
+    await _replace_terms(db, package.id, "exclusion", payload.exclusions)
 
     await db.commit()
     return await get_package_by_slug(db, package.slug, active_only=False)
@@ -219,6 +250,8 @@ async def update_package(
     days = data.pop("days", None)
     hotels = data.pop("hotels", None)
     media = data.pop("media", None)
+    inclusions = data.pop("inclusions", None)
+    exclusions = data.pop("exclusions", None)
 
     if "destination_id" in data:
         destination = await db.get(Destination, data["destination_id"])
@@ -252,6 +285,20 @@ async def update_package(
             db,
             package.id,
             [PackageMediaCreate.model_validate(item) for item in media],
+        )
+    if inclusions is not None:
+        await _replace_terms(
+            db,
+            package.id,
+            "inclusion",
+            [PackageTermCreate.model_validate(item) for item in inclusions],
+        )
+    if exclusions is not None:
+        await _replace_terms(
+            db,
+            package.id,
+            "exclusion",
+            [PackageTermCreate.model_validate(item) for item in exclusions],
         )
 
     await db.commit()

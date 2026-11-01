@@ -1,7 +1,8 @@
 from datetime import datetime
 from decimal import Decimal
+from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, model_validator
 
 from app.schemas.destination.response import DestinationOut
 from app.schemas.hotel.response import HotelOut
@@ -47,6 +48,14 @@ class PackageMediaOut(BaseModel):
     sort_order: int
 
 
+class PackageTermOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    text: str
+    sort_order: int
+
+
 class PackageOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -70,3 +79,15 @@ class PackageDetailOut(PackageOut):
     days: list[PackageDayOut] = []
     hotels: list[PackageHotelOut] = []
     media: list[PackageMediaOut] = []
+    inclusions: list[PackageTermOut] = []
+    exclusions: list[PackageTermOut] = []
+
+    @model_validator(mode="before")
+    @classmethod
+    def _split_terms(cls, data: Any) -> Any:
+        if isinstance(data, dict) or not hasattr(data, "terms"):
+            return data
+        terms = list(data.terms or [])
+        data.inclusions = [term for term in terms if term.kind == "inclusion"]
+        data.exclusions = [term for term in terms if term.kind == "exclusion"]
+        return data

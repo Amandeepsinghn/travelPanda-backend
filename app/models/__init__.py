@@ -2,7 +2,7 @@ from app.models.booking import Booking, BookingStatus
 from app.models.comment import Comment
 from app.models.destination import Destination
 from app.models.hotel import Hotel, PackageHotel
-from app.models.package import Package, PackageDay, PackageMedia, PackageStop
+from app.models.package import Package, PackageDay, PackageMedia, PackageStop, PackageTerm
 from app.models.user import User
 
 __all__ = [
@@ -14,6 +14,7 @@ __all__ = [
     "Hotel",
     "PackageHotel",
     "PackageMedia",
+    "PackageTerm",
     "Booking",
     "BookingStatus",
     "Comment",

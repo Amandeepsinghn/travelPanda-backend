@@ -3,6 +3,7 @@ from decimal import Decimal
 
 from sqlalchemy import (
     Boolean,
+    CheckConstraint,
     DateTime,
     ForeignKey,
     Integer,
@@ -57,6 +58,11 @@ class Package(Base):
         cascade="all, delete-orphan",
     )
     media: Mapped[list["PackageMedia"]] = relationship(back_populates="package")
+    terms: Mapped[list["PackageTerm"]] = relationship(
+        back_populates="package",
+        order_by="PackageTerm.sort_order",
+        cascade="all, delete-orphan",
+    )
     bookings: Mapped[list["Booking"]] = relationship(back_populates="package")
     comments: Mapped[list["Comment"]] = relationship(back_populates="package")
 
@@ -121,3 +127,24 @@ class PackageMedia(Base):
 
     package: Mapped[Package | None] = relationship(back_populates="media")
     destination: Mapped["Destination | None"] = relationship(back_populates="media")
+
+
+class PackageTerm(Base):
+    __tablename__ = "package_terms"
+    __table_args__ = (
+        CheckConstraint(
+            "kind IN ('inclusion', 'exclusion')",
+            name="ck_package_terms_kind",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    package_id: Mapped[int] = mapped_column(
+        ForeignKey("packages.id", ondelete="CASCADE"),
+        index=True,
+    )
+    kind: Mapped[str] = mapped_column(String(16))
+    text: Mapped[str] = mapped_column(Text)
+    sort_order: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+
+    package: Mapped[Package] = relationship(back_populates="terms")
